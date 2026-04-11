@@ -30,17 +30,11 @@ jobs:
       - name: Build Windows
         run: wails build -platform windows/amd64 -o Plotter.exe
 
-      - name: Install WiX
-        run: dotnet tool install --global wix
-
-      - name: Create MSI Installer
-        run: wix build -acceptEula wix7 -out Plotter-Setup.msi installer.wxs
-
-      - name: Upload MSI
+      - name: Upload Executable
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msi
-          path: Plotter-Setup.msi
+          name: windows-exe
+          path: build/bin/Plotter.exe
 
   build-macos:
     runs-on: macos-latest
@@ -135,7 +129,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            windows-msi/Plotter-Setup.msi
+            windows-exe/Plotter.exe
             macos-dmg/Plotter.dmg
             linux-appimage/Plotter-*.AppImage
         env:
