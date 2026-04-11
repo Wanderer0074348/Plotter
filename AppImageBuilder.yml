@@ -1,0 +1,30 @@
+version: 1
+AppDir:
+  path: ./AppDir
+  app_info:
+    id: com.plotter.app
+    name: Plotter
+    icon: plotter
+    version: 1.0.0
+    summary: Your AI Storyteller
+    description: Create, chronicle, and explore your narratives with AI-powered storytelling assistance
+
+  directories:
+    usr/share/icons: build/windows
+    usr/share/pixmaps: build/windows
+
+  files:
+    build/bin/Plotter: usr/bin/Plotter
+
+  before_bundle: []
+  after_bundle: []
+
+AppImage:
+  update-information: null
+  sign-key: null
+  arch: x86_64
+  file_name: Plotter-x86_64.AppImage
+
+FileAttributes:
+  /usr/bin/Plotter:
+    - executable: true

@@ -1,0 +1,135 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.25'
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build Frontend
+        run: cd frontend && npm install && npm run build
+
+      - name: Build Windows
+        run: wails build -platform windows/amd64 -o Plotter.exe
+
+      - name: Install WiX
+        run: dotnet tool install --global wix
+
+      - name: Create MSI Installer
+        run: wix build -out Plotter-Setup.msi installer.wxs
+
+      - name: Upload MSI
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-msi
+          path: Plotter-Setup.msi
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.25'
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build Frontend
+        run: cd frontend && npm install && npm run build
+
+      - name: Build macOS (Universal)
+        run: wails build -platform darwin/universal
+
+      - name: Create DMG
+        run: |
+          brew install create-dmg
+          create-dmg --volname "Plotter" --window-pos 200 120 --window-size 800 400 --icon-size 100 --icon "Plotter.app" 200 190 --hide-extension "Plotter.app" --app-drop-link 600 190 "Plotter.dmg" "build/bin/"
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-dmg
+          path: Plotter.dmg
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.25'
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev appimage-builder
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build Frontend
+        run: cd frontend && npm install && npm run build
+
+      - name: Build Linux
+        run: wails build -platform linux/amd64 -o Plotter
+
+      - name: Create AppImage
+        run: |
+          mkdir -p AppDir/usr/bin
+          cp build/bin/Plotter AppDir/usr/bin/
+          appimage-builder --recipe AppImageBuilder.yml --skip-tests
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-appimage
+          path: Plotter-*.AppImage
+
+  create-release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            windows-msi/Plotter-Setup.msi
+            macos-dmg/Plotter.dmg
+            linux-appimage/Plotter-*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
