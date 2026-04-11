@@ -34,7 +34,7 @@ jobs:
         run: dotnet tool install --global wix
 
       - name: Create MSI Installer
-        run: wix build -out Plotter-Setup.msi installer.wxs
+        run: wix build -out Plotter-Setup.msi installer.wxs -acceptEula
 
       - name: Upload MSI
         uses: actions/upload-artifact@v4
@@ -106,7 +106,7 @@ jobs:
         run: cd frontend && npm install && npm run build
 
       - name: Build Linux
-        run: wails build -platform linux/amd64 -o Plotter
+        run: wails build -platform linux/amd64 -o Plotter -tags webkit2_41
 
       - name: Install AppImage Builder
         run: sudo pip3 install appimage-builder
