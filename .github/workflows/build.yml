@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -118,7 +121,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-appimage
-          path: Plotter-*.AppImage
+          path: "*.AppImage"
+          if-no-files-found: warn
 
   create-release:
     needs: [build-windows, build-macos, build-linux]
