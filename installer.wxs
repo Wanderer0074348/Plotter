@@ -9,8 +9,6 @@
     Language="1033"
     Scope="perMachine">
 
-    <Summary>Plotter - Your AI Storyteller</Summary>
-
     <!-- Installation directory -->
     <StandardDirectory Id="ProgramFilesFolder">
       <Directory Id="INSTALLFOLDER" Name="Plotter" />
@@ -24,7 +22,7 @@
     <!-- Desktop -->
     <StandardDirectory Id="DesktopFolder" />
 
-    <!-- Files -->
+    <!-- Features -->
     <Feature Id="ProductFeature" Title="Plotter" Level="1">
       <ComponentRef Id="MainExecutable" />
       <ComponentRef Id="StartMenuShortcut" />
@@ -33,7 +31,7 @@
 
     <!-- Main executable -->
     <DirectoryRef Id="INSTALLFOLDER">
-      <Component Id="MainExecutable" Bitness="x64">
+      <Component Id="MainExecutable" Bitness="always64">
         <File Id="PlotterExe" Name="Plotter.exe" Source="build\bin\Plotter.exe" />
       </Component>
     </DirectoryRef>
