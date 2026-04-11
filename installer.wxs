@@ -1,85 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product
-    Id="*"
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
     Name="Plotter"
-    Language="1033"
+    Manufacturer="Plotter"
     Version="1.0.0.0"
+    ProductCode="*"
     UpgradeCode="550e8400-e29b-41d4-a716-446655440000"
-    Manufacturer="Plotter">
+    Language="1033"
+    Scope="perMachine">
 
-    <Package
-      InstallerVersion="200"
-      Compressed="yes"
-      InstallScope="perMachine"
-      Description="Plotter - Your AI Storyteller" />
+    <Summary>Plotter - Your AI Storyteller</Summary>
 
-    <MajorUpgrade
-      DowngradeErrorMessage="A newer version of Plotter is already installed." />
+    <!-- Installation directory -->
+    <StandardDirectory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLFOLDER" Name="Plotter" />
+    </StandardDirectory>
 
-    <MediaTemplate EmbedCab="yes" />
+    <!-- Start Menu -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="Plotter" />
+    </StandardDirectory>
 
-    <!-- Installation directory structure -->
+    <!-- Desktop -->
+    <StandardDirectory Id="DesktopFolder" />
+
+    <!-- Files -->
     <Feature Id="ProductFeature" Title="Plotter" Level="1">
       <ComponentRef Id="MainExecutable" />
-      <ComponentRef Id="ProgramMenuDir" />
+      <ComponentRef Id="StartMenuShortcut" />
       <ComponentRef Id="DesktopShortcut" />
     </Feature>
 
-    <!-- UI -->
-    <UIRef Id="WixUI_InstallDir" />
-    <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
-
-    <!-- Installation directories -->
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLFOLDER" Name="Plotter" />
-      </Directory>
-      <Directory Id="ProgramMenuFolder">
-        <Directory Id="ApplicationProgramsFolder" Name="Plotter" />
-      </Directory>
-      <Directory Id="DesktopFolder" Name="Desktop" />
-    </Directory>
-
-    <!-- Files and shortcuts -->
+    <!-- Main executable -->
     <DirectoryRef Id="INSTALLFOLDER">
-      <Component Id="MainExecutable" Guid="550e8400-e29b-41d4-a716-446655440001">
-        <File
-          Id="PlotterExe"
-          Source="build\bin\Plotter.exe"
-          KeyPath="yes"
-          Checksum="yes" />
-        <ProgId
-          Id="Plotter.App"
-          Description="Plotter Application"
-          Icon="PlotterIcon.ico"
-          IconIndex="0" />
+      <Component Id="MainExecutable" Bitness="x64">
+        <File Id="PlotterExe" Name="Plotter.exe" Source="build\bin\Plotter.exe" />
       </Component>
     </DirectoryRef>
 
+    <!-- Start Menu shortcut -->
     <DirectoryRef Id="ApplicationProgramsFolder">
-      <Component Id="ProgramMenuDir" Guid="550e8400-e29b-41d4-a716-446655440002">
+      <Component Id="StartMenuShortcut">
         <Shortcut
           Id="ApplicationStartMenuShortcut"
           Name="Plotter"
           Description="Your AI Storyteller"
           Target="[INSTALLFOLDER]Plotter.exe"
           WorkingDirectory="INSTALLFOLDER" />
-        <RemoveFolder
-          Id="ApplicationProgramsFolderRemove"
-          On="uninstall" />
+        <RemoveFolder Id="ApplicationProgramsFolderRemove" On="uninstall" />
         <RegistryValue
           Root="HKCU"
           Key="Software\Plotter"
-          Name="installed"
+          Name="StartMenuShortcut"
           Type="integer"
           Value="1"
           KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
+    <!-- Desktop shortcut -->
     <DirectoryRef Id="DesktopFolder">
-      <Component Id="DesktopShortcut" Guid="11111111-2222-3333-4444-555555555555">
+      <Component Id="DesktopShortcut">
         <Shortcut
           Id="DesktopShortcut"
           Name="Plotter"
@@ -89,17 +70,16 @@
         <RegistryValue
           Root="HKCU"
           Key="Software\Plotter"
-          Name="desktopinstalled"
+          Name="DesktopShortcut"
           Type="integer"
           Value="1"
           KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
-    <!-- Icon reference -->
-    <Icon
-      Id="PlotterIcon.ico"
-      SourceFile="build\windows\icon.ico" />
+    <!-- UI -->
+    <UIRef Id="WixUI_InstallDir" />
+    <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
 
-  </Product>
+  </Package>
 </Wix>
